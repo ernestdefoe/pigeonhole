@@ -5,6 +5,7 @@ import Icon from 'flarum/common/components/Icon';
 import Component from 'flarum/common/Component';
 import InfoTile from 'flarum/common/components/InfoTile';
 import classList from 'flarum/common/utils/classList';
+import extractText from 'flarum/common/utils/extractText';
 import folders, { t, ARCHIVE, folderIdOf, isArchived, dropFrom } from './state';
 import dragSort from './dragSort';
 import folderIcon from './folderIcon';
@@ -142,7 +143,7 @@ class FolderBar extends Component {
               color: folder.color(),
               count: folder.unreadCount(),
               active: folders.selected === folder.id(),
-              title: folder.unreadCount() ? t('nav.unread_count', { count: folder.unreadCount() }) : undefined,
+              title: folder.unreadCount() ? extractText(t('nav.unread_count', { count: folder.unreadCount() })) : undefined,
               'data-folder-id': folder.id(),
               onclick: () => folders.select(folder.id()),
               onpointerdown: (e) => {

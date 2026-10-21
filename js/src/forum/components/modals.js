@@ -5,6 +5,7 @@ import Button from 'flarum/common/components/Button';
 import Icon from 'flarum/common/components/Icon';
 import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
 import classList from 'flarum/common/utils/classList';
+import extractText from 'flarum/common/utils/extractText';
 import folders, { t, folderIdOf } from '../state';
 import folderIcon from '../folderIcon';
 import dragSort from '../dragSort';
@@ -246,7 +247,7 @@ export class ManageFoldersModal extends Modal {
   }
 
   delete(folder) {
-    if (!confirm(t('manage.delete_confirm', { name: folder.name() }))) return;
+    if (!confirm(extractText(t('manage.delete_confirm', { name: folder.name() })))) return;
 
     const id = folder.id();
 
