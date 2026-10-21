@@ -5,32 +5,30 @@
 
 // The folder bar above the conversation list.
 .PigeonholeBar {
-  display: flex;
-  align-items: flex-start;
-  gap: 4px;
   margin: 0 0 10px;
-}
-.PigeonholeBar-chips {
-  display: flex;
-  flex: 1;
-  flex-wrap: wrap;
-  gap: 6px;
-  min-width: 0;
   // Room for the focus ring.
   padding: 2px;
 }
 // Two rows of chips (each 26px high, 6px apart).
-.PigeonholeBar-chips--collapsed {
+.PigeonholeBar--collapsed {
   max-height: 62px;
   overflow: hidden;
 }
-.PigeonholeBar-tools {
-  display: flex;
-  flex-shrink: 0;
+// Beside the first row of chips, the rest wrap under them at full width.
+.PigeonholeBar-more.Button--icon {
+  float: right;
+  width: 26px;
+  height: 26px;
+  margin-left: 4px;
+  padding: 0;
+}
+.PigeonholeBar-chips {
+  display: contents;
 }
 .PigeonholeBar-chip {
   display: inline-flex;
-  flex-shrink: 0;
+  margin: 0 6px 6px 0;
+  vertical-align: top;
   align-items: center;
   gap: 6px;
   max-width: 100%;
@@ -78,21 +76,11 @@
   background: var(--primary-color);
   color: var(--body-bg);
 }
-.PigeonholeBar-tools {
-  gap: 2px;
-}
-.PigeonholeBar-more,
-.PigeonholeBar-manage {
+.PigeonholeBar-more {
   color: var(--muted-color);
 }
-.PigeonholeBar-archive {
-  background: none;
-  color: var(--muted-color);
-
-  &.active {
-    background: var(--control-bg);
-    color: var(--primary-color);
-  }
+.PigeonholeArchiveButton.active {
+  color: var(--primary-color);
 }
 // Dragged rows ride over the others; dropping a conversation lights the target.
 .is-dragging {
@@ -274,13 +262,22 @@
   }
 }
 .PigeonholeMoveModal-choice {
-  display: flex;
-  align-items: center;
-  gap: 10px;
   width: 100%;
   margin-bottom: 4px;
   text-align: left;
   background: none;
+
+  justify-content: flex-start;
+
+  .Button-label,
+  .Button-labelText {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 10px;
+    width: 100%;
+  }
 
   &.active,
   &:hover {

@@ -74,7 +74,7 @@ export class FolderEditModal extends FormModal {
               <button
                 type="button"
                 className={classList('PigeonholeSwatch PigeonholeSwatch--none', { active: !this.color })}
-                aria-pressed={!this.color}
+                aria-pressed={!this.color ? 'true' : 'false'}
                 onclick={() => (this.color = '')}
               >
                 {t('edit.no_color')}
@@ -85,7 +85,7 @@ export class FolderEditModal extends FormModal {
                   className={classList('PigeonholeSwatch', { active: this.color === color })}
                   style={{ '--pigeonhole-color': color }}
                   aria-label={color}
-                  aria-pressed={this.color === color}
+                  aria-pressed={this.color === color ? 'true' : 'false'}
                   onclick={() => (this.color = color)}
                 />
               ))}
@@ -107,7 +107,7 @@ export class FolderEditModal extends FormModal {
                   type="button"
                   className={classList('Button Button--icon PigeonholeIcons-choice', { active: this.icon === icon })}
                   aria-label={icon}
-                  aria-pressed={this.icon === icon}
+                  aria-pressed={this.icon === icon ? 'true' : 'false'}
                   onclick={() => (this.icon = icon)}
                 >
                   <Icon name={icon} />
@@ -298,7 +298,7 @@ export class MoveModal extends Modal {
               <li>
                 <Button
                   className={classList('Button PigeonholeMoveModal-choice', { active: current === folder.id() })}
-                  aria-pressed={current === folder.id()}
+                  aria-pressed={current === folder.id() ? 'true' : 'false'}
                   disabled={this.loading}
                   onclick={() => this.move(folder.id())}
                 >

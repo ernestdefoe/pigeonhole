@@ -103,8 +103,10 @@ class FolderBar extends Component {
 
   /** Whether the folders run past two rows, which is when More shows. */
   measure() {
-    const chips = this.element.querySelector('.PigeonholeBar-chips');
-    const overflows = expanded || chips.scrollHeight > chips.clientHeight + 1;
+    const chips = this.element.querySelectorAll('.PigeonholeBar-chip');
+    const top = (el) => el.getBoundingClientRect().top;
+    // A chip starting below the second row.
+    const overflows = expanded || (chips.length > 1 && top(chips[chips.length - 1]) - top(chips[0]) > 48);
 
     if (overflows !== this.overflows) {
       this.overflows = overflows;
@@ -116,11 +118,22 @@ class FolderBar extends Component {
     const list = folders.list || [];
     const ids = list.map((folder) => folder.id());
     const unreadAll = app.session.user?.attribute('unreadDialogCount') || 0;
-    const manage = t(list.length ? 'nav.manage_folders' : 'nav.new_folder');
 
     return (
-      <div className="PigeonholeBar" role="toolbar" aria-label={t('nav.folders')}>
-        <div className={classList('PigeonholeBar-chips', { 'PigeonholeBar-chips--collapsed': !expanded })}>
+      <div className={classList('PigeonholeBar', { 'PigeonholeBar--collapsed': !expanded })} role="toolbar" aria-label={t('nav.folders')}>
+        {this.overflows ? (
+          <button
+            type="button"
+            className="Button Button--icon Button--link PigeonholeBar-more"
+            aria-expanded={expanded ? 'true' : 'false'}
+            title={t(expanded ? 'nav.fewer' : 'nav.more')}
+            aria-label={t(expanded ? 'nav.fewer' : 'nav.more')}
+            onclick={() => (expanded = !expanded)}
+          >
+            <Icon name={expanded ? 'fas fa-chevron-up' : 'fas fa-chevron-down'} />
+          </button>
+        ) : null}
+        <div className="PigeonholeBar-chips">
           {chip({ label: t('nav.all'), icon: 'far fa-envelope', count: unreadAll, active: !folders.selected, onclick: () => folders.select(null) })}
           {list.map((folder) =>
             chip({
@@ -142,40 +155,6 @@ class FolderBar extends Component {
             })
           )}
         </div>
-        <div className="PigeonholeBar-tools">
-          <button
-            type="button"
-            className={classList('Button Button--icon PigeonholeBar-archive', { active: folders.selected === ARCHIVE })}
-            aria-pressed={folders.selected === ARCHIVE ? 'true' : 'false'}
-            title={t('nav.archive')}
-            aria-label={t('nav.archive')}
-            onclick={() => folders.select(folders.selected === ARCHIVE ? null : ARCHIVE)}
-            {...dropTarget((dialog) => folders.archive(dialog, true))}
-          >
-            <Icon name="fas fa-box-archive" />
-          </button>
-          {this.overflows ? (
-            <button
-              type="button"
-              className="Button Button--icon Button--link PigeonholeBar-more"
-              aria-expanded={expanded ? 'true' : 'false'}
-              title={t(expanded ? 'nav.fewer' : 'nav.more')}
-              aria-label={t(expanded ? 'nav.fewer' : 'nav.more')}
-              onclick={() => (expanded = !expanded)}
-            >
-              <Icon name={expanded ? 'fas fa-chevron-up' : 'fas fa-chevron-down'} />
-            </button>
-          ) : null}
-          <button
-            type="button"
-            className="Button Button--icon Button--link PigeonholeBar-manage"
-            title={manage}
-            aria-label={manage}
-            onclick={() => openModal(list.length ? 'ManageFoldersModal' : 'FolderEditModal')}
-          >
-            <Icon name={list.length ? 'fas fa-sliders' : 'fas fa-folder-plus'} />
-          </button>
-        </div>
       </div>
     );
   }
@@ -193,6 +172,9 @@ app.initializers.add('ernestdefoe-pigeonhole', () => {
       if (!children) return;
 
       folders.refreshIfStale();
+
+      // Nothing to choose between until the member has a folder.
+      if (!folders.list?.length) return;
 
       // Just above the list (or Group Messages' search results in its place).
       const at = children.findIndex((child) => child && ['list', 'groupMessagesSearchResults'].includes(child.key));
@@ -249,6 +231,43 @@ app.initializers.add('ernestdefoe-pigeonhole', () => {
           {t(archived ? 'dialog.unarchive' : 'dialog.archive')}
         </Button>,
         54
+      );
+    });
+  });
+
+  // ----- Beside refresh and mark-all-read: the archive and the folder settings.
+  reg.onLoad('flarum-messages', 'forum/components/MessagesPage', (MessagesPage) => {
+    extend(MessagesPage.prototype, 'actionItems', function (items) {
+      if (!app.session.user) return;
+
+      const archived = folders.selected === ARCHIVE;
+      const any = (folders.list || []).length > 0;
+      const manage = t(any ? 'nav.manage_folders' : 'nav.new_folder');
+
+      items.add(
+        'pigeonholeArchive',
+        <Button
+          className={classList('Button Button--icon PigeonholeArchiveButton', { active: archived })}
+          icon="fas fa-box-archive"
+          aria-pressed={archived ? 'true' : 'false'}
+          title={t('nav.archive')}
+          aria-label={t('nav.archive')}
+          onclick={() => folders.select(archived ? null : ARCHIVE)}
+          {...dropTarget((dialog) => folders.archive(dialog, true))}
+        />,
+        20
+      );
+
+      items.add(
+        'pigeonholeManage',
+        <Button
+          className="Button Button--icon PigeonholeManageButton"
+          icon={any ? 'fas fa-folder-tree' : 'fas fa-folder-plus'}
+          title={manage}
+          aria-label={manage}
+          onclick={() => openModal(any ? 'ManageFoldersModal' : 'FolderEditModal')}
+        />,
+        15
       );
     });
   });
