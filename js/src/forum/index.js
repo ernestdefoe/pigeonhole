@@ -71,18 +71,19 @@ function findByClass(vnode, name) {
 }
 
 /** One chip in the folder bar. */
-function chip({ label, icon, color, count, active, onclick, ...attrs }) {
+function chip({ label, icon, color, count, active, iconOnly, className, onclick, ...attrs }) {
   return (
     <button
       type="button"
-      className={classList('PigeonholeBar-chip', { active })}
-      aria-pressed={active ? 'true' : 'false'}
+      className={classList('PigeonholeBar-chip', className, { active, 'PigeonholeBar-chip--icon': iconOnly })}
+      aria-pressed={active === undefined ? undefined : active ? 'true' : 'false'}
+      title={iconOnly ? label : undefined}
       style={color ? { '--pigeonhole-color': color } : undefined}
       onclick={onclick}
       {...attrs}
     >
       {icon ? <Icon name={icon} className="PigeonholeBar-icon" /> : null}
-      <span className="PigeonholeBar-label">{label}</span>
+      <span className={iconOnly ? 'sr-only' : 'PigeonholeBar-label'}>{label}</span>
       {count ? <span className="PigeonholeBar-count">{count}</span> : null}
     </button>
   );
@@ -136,6 +137,21 @@ class FolderBar extends Component {
         ) : null}
         <div className="PigeonholeBar-chips">
           {chip({ label: t('nav.all'), icon: 'far fa-envelope', count: unreadAll, active: !folders.selected, onclick: () => folders.select(null) })}
+          {chip({
+            label: t('nav.archive'),
+            icon: 'fas fa-box-archive',
+            iconOnly: true,
+            active: folders.selected === ARCHIVE,
+            onclick: () => folders.select(folders.selected === ARCHIVE ? null : ARCHIVE),
+            ...dropTarget((dialog) => folders.archive(dialog, true)),
+          })}
+          {chip({
+            label: t(list.length ? 'nav.manage_folders' : 'nav.new_folder'),
+            icon: list.length ? 'fas fa-sliders' : 'fas fa-folder-plus',
+            iconOnly: true,
+            className: 'PigeonholeBar-manage',
+            onclick: () => openModal(list.length ? 'ManageFoldersModal' : 'FolderEditModal'),
+          })}
           {list.map((folder) =>
             chip({
               label: folder.name(),
@@ -173,9 +189,6 @@ app.initializers.add('ernestdefoe-pigeonhole', () => {
       if (!children) return;
 
       folders.refreshIfStale();
-
-      // Nothing to choose between until the member has a folder.
-      if (!folders.list?.length) return;
 
       // Just above the list (or Group Messages' search results in its place).
       const at = children.findIndex((child) => child && ['list', 'groupMessagesSearchResults'].includes(child.key));
@@ -232,43 +245,6 @@ app.initializers.add('ernestdefoe-pigeonhole', () => {
           {t(archived ? 'dialog.unarchive' : 'dialog.archive')}
         </Button>,
         54
-      );
-    });
-  });
-
-  // ----- Beside refresh and mark-all-read: the archive and the folder settings.
-  reg.onLoad('flarum-messages', 'forum/components/MessagesPage', (MessagesPage) => {
-    extend(MessagesPage.prototype, 'actionItems', function (items) {
-      if (!app.session.user) return;
-
-      const archived = folders.selected === ARCHIVE;
-      const any = (folders.list || []).length > 0;
-      const manage = t(any ? 'nav.manage_folders' : 'nav.new_folder');
-
-      items.add(
-        'pigeonholeArchive',
-        <Button
-          className={classList('Button Button--icon PigeonholeArchiveButton', { active: archived })}
-          icon="fas fa-box-archive"
-          aria-pressed={archived ? 'true' : 'false'}
-          title={t('nav.archive')}
-          aria-label={t('nav.archive')}
-          onclick={() => folders.select(archived ? null : ARCHIVE)}
-          {...dropTarget((dialog) => folders.archive(dialog, true))}
-        />,
-        20
-      );
-
-      items.add(
-        'pigeonholeManage',
-        <Button
-          className="Button Button--icon PigeonholeManageButton"
-          icon={any ? 'fas fa-folder-tree' : 'fas fa-folder-plus'}
-          title={manage}
-          aria-label={manage}
-          onclick={() => openModal(any ? 'ManageFoldersModal' : 'FolderEditModal')}
-        />,
-        15
       );
     });
   });
