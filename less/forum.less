@@ -6,10 +6,27 @@
 // The folder bar above the conversation list.
 .PigeonholeBar {
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 6px;
+  align-items: flex-start;
+  gap: 4px;
   margin: 0 0 10px;
+}
+.PigeonholeBar-chips {
+  display: flex;
+  flex: 1;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-width: 0;
+  // Room for the focus ring.
+  padding: 2px;
+}
+// Two rows of chips (each 26px high, 6px apart).
+.PigeonholeBar-chips--collapsed {
+  max-height: 62px;
+  overflow: hidden;
+}
+.PigeonholeBar-tools {
+  display: flex;
+  flex-shrink: 0;
 }
 .PigeonholeBar-chip {
   display: inline-flex;
@@ -61,9 +78,21 @@
   background: var(--primary-color);
   color: var(--body-bg);
 }
+.PigeonholeBar-tools {
+  gap: 2px;
+}
+.PigeonholeBar-more,
 .PigeonholeBar-manage {
-  flex-shrink: 0;
   color: var(--muted-color);
+}
+.PigeonholeBar-archive {
+  background: none;
+  color: var(--muted-color);
+
+  &.active {
+    background: var(--control-bg);
+    color: var(--primary-color);
+  }
 }
 // Dragged rows ride over the others; dropping a conversation lights the target.
 .is-dragging {

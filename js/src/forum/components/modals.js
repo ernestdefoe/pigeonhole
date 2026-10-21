@@ -167,8 +167,20 @@ export class FolderEditModal extends FormModal {
   }
 }
 
+/**
+ * On a phone the modal slides up while its close button takes focus, which
+ * scrolls a long list to its end. It opens at the top.
+ */
+function toTop(modal) {
+  requestAnimationFrame(() => modal.element?.closest('.ModalManager')?.scrollTo?.(0, 0));
+}
+
 /** The member's folders: drag to reorder, edit, delete, make one. */
 export class ManageFoldersModal extends Modal {
+  onready() {
+    toTop(this);
+  }
+
   className() {
     return 'PigeonholeManageModal Modal--small';
   }
@@ -257,6 +269,10 @@ export class MoveModal extends Modal {
     super.oninit(vnode);
 
     if (folders.list === null) folders.load();
+  }
+
+  onready() {
+    toTop(this);
   }
 
   className() {
