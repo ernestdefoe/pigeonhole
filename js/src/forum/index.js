@@ -257,18 +257,31 @@ app.initializers.add('ernestdefoe-pigeonhole', () => {
     });
   });
 
-  // ----- An empty folder says so, rather than "no messages".
+  // ----- With nothing to list, Flarum shows a tile in place of the whole
+  // list, folder bar and all. The bar stays above it, or an emptied folder
+  // (or everything archived) would leave no way back. An empty folder says so.
   reg.onLoad('flarum-messages', 'forum/components/MessagesPage', (MessagesPage) => {
     extend(MessagesPage.prototype, 'view', function (vdom) {
-      if (!folders.selected) return;
+      if (!app.session.user) return;
 
       const children = Array.isArray(vdom?.children) ? vdom.children : [];
-      const tile = children.find((child) => child?.tag === InfoTile);
+      const at = children.findIndex((child) => child?.tag === InfoTile);
+      if (at === -1) return;
 
-      if (tile) {
+      const tile = children[at];
+      folders.refreshIfStale();
+
+      if (folders.selected) {
         tile.attrs.icon = folders.selected === ARCHIVE ? 'fas fa-box-archive' : 'far fa-folder-open';
         tile.children = [t(folders.selected === ARCHIVE ? 'list.archive_empty' : 'list.folder_empty')];
       }
+
+      children[at] = (
+        <div className="PigeonholeEmptyPage">
+          <FolderBar />
+          {tile}
+        </div>
+      );
     });
   });
 
