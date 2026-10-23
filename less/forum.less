@@ -30,9 +30,15 @@
   margin: 0 6px 6px 0;
   vertical-align: top;
   align-items: center;
+  justify-content: center;
   gap: 6px;
   max-width: 100%;
-  padding: 3px 9px;
+  // One height for every chip, text or icon only, whatever a theme does to
+  // buttons: an icon is shorter than a line of text.
+  box-sizing: border-box;
+  height: 26px;
+  min-height: 0;
+  padding: 0 9px;
   border: 1px solid transparent;
   border-radius: 16px;
   font-size: 13px;
@@ -80,7 +86,8 @@
   color: var(--muted-color);
 }
 .PigeonholeBar-chip--icon {
-  padding: 3px 8px;
+  min-width: 34px;
+  padding: 0 8px;
 }
 // Dragged rows ride over the others; dropping a conversation lights the target.
 .is-dragging {

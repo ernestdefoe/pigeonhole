@@ -110,6 +110,20 @@ const folders = {
     return dialog.save({ pigeonholeFolderId: folderId === null ? null : Number(folderId) }).then(() => this.afterChange(dialog));
   },
 
+  /**
+   * Back to plain "All": out of its folder and out of the archive, in one
+   * save. Nothing to do for a conversation that is in neither.
+   */
+  unfile(dialog) {
+    const data = {};
+    if (folderIdOf(dialog) !== null) data.pigeonholeFolderId = null;
+    if (isArchived(dialog)) data.pigeonholeArchived = false;
+
+    if (!Object.keys(data).length) return Promise.resolve();
+
+    return dialog.save(data).then(() => this.afterChange(dialog));
+  },
+
   /** Archives a conversation (reading it), or brings it back. */
   archive(dialog, archived) {
     const unread = !!dialog.unreadCount();

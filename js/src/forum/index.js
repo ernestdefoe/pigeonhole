@@ -24,7 +24,7 @@ export const openModal = (name, attrs = {}) => {
   return modals.then((module) => app.modal.show(module[name], attrs));
 };
 
-/** Where a dragged conversation can be dropped: a folder, or the archive. */
+/** Where a dragged conversation can be dropped: All, a folder, or the archive. */
 function dropTarget(onDrop) {
   const has = (e) => Array.from(e.dataTransfer?.types || []).includes(DIALOG_TYPE);
 
@@ -136,7 +136,15 @@ class FolderBar extends Component {
           </button>
         ) : null}
         <div className="PigeonholeBar-chips">
-          {chip({ label: t('nav.all'), icon: 'far fa-envelope', count: unreadAll, active: !folders.selected, onclick: () => folders.select(null) })}
+          {chip({
+            label: t('nav.all'),
+            icon: 'far fa-envelope',
+            count: unreadAll,
+            active: !folders.selected,
+            onclick: () => folders.select(null),
+            // Dropped on All: in no folder and not archived.
+            ...dropTarget((dialog) => folders.unfile(dialog).catch(() => {})),
+          })}
           {chip({
             label: t('nav.archive'),
             icon: 'fas fa-box-archive',

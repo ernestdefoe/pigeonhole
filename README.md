@@ -10,7 +10,7 @@ Folders for private messages in [Flarum 2](https://flarum.org) ([flarum/messages
 
 - **Your own folders.** Make as many as you need (up to 50), each with a name, a colour and a Font Awesome icon. Nobody else ever sees them.
 - **Filing is personal.** Putting a conversation in a folder changes only your view. The other people in it keep theirs.
-- **Drag and drop.** Drag a conversation from the list onto a folder to file it, or onto Archive to put it away. Drag folders into the order you want, in the folder bar or in Manage folders (which also works by touch on phones and tablets).
+- **Drag and drop.** Drag a conversation from the list onto a folder to file it, onto Archive to put it away, or onto All to take it out of its folder (and out of the archive). Drag folders into the order you want, in the folder bar or in Manage folders (which also works by touch on phones and tablets).
 - **Archive.** An archived conversation leaves your list and the header's messages dropdown, and is marked read. It comes back on its own, to the folder it was in, as soon as there is a new message.
 - **Unread counts per folder**, beside each folder's name, so you can see where the new messages are without opening every folder.
 - **From the conversation itself.** Its ⋯ menu has *Move to folder* and *Archive*, which is how you file on a phone.
