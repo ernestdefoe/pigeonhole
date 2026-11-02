@@ -117,7 +117,16 @@ class FoldersTest extends PigeonholeTestCase
     #[Test]
     public function reordering_touches_only_the_actors_folders()
     {
+        $updates = 0;
+        $this->database()->listen(function ($query) use (&$updates) {
+            if (str_contains($query->sql, 'pigeonhole_folders') && stripos($query->sql, 'update') === 0) {
+                $updates++;
+            }
+        });
+
         $this->assertSame(204, $this->call('POST', '/api/pigeonhole-folders/order', self::ALICE, null, [], ['order' => [2, 3, 1]])[0]);
+        $this->assertSame(1, $updates, 'the whole order is written in one UPDATE');
+        $this->assertEquals([1 => 2, 2 => 0], $this->database()->table('pigeonhole_folders')->where('user_id', self::ALICE)->pluck('position', 'id')->map(fn ($p) => (int) $p)->all());
 
         $this->assertSame(['Family', 'Work'], array_column($this->folders(self::ALICE), 'name'));
         $this->assertSame(0, (int) $this->database()->table('pigeonhole_folders')->where('id', 3)->value('position'), "Bob's folder kept its place");

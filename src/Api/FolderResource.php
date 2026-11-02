@@ -179,13 +179,21 @@ class FolderResource extends AbstractDatabaseResource
 
         $ids = array_values(array_unique(array_map('intval', array_filter($ids, 'is_numeric'))));
 
-        $this->db->transaction(function () use ($actor, $ids) {
-            foreach ($ids as $position => $id) {
-                Folder::query()
-                    ->where('user_id', $actor->id)
-                    ->where('id', $id)
-                    ->update(['position' => $position]);
-            }
-        });
+        if (! $ids) {
+            return;
+        }
+
+        // One UPDATE for the whole list. Every id and position is an int (intval above),
+        // so inlining them in the CASE is safe and keeps update()'s bindings in order.
+        $case = 'CASE '.$this->db->getQueryGrammar()->wrap('id');
+
+        foreach ($ids as $position => $id) {
+            $case .= ' WHEN '.(int) $id.' THEN '.(int) $position;
+        }
+
+        Folder::query()
+            ->where('user_id', $actor->id)
+            ->whereIn('id', $ids)
+            ->update(['position' => $this->db->raw($case.' END')]);
     }
 }

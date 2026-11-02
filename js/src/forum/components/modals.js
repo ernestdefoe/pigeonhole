@@ -296,7 +296,7 @@ export class MoveModal extends Modal {
         ) : (
           <ul className="PigeonholeMoveModal-list">
             {list.map((folder) => (
-              <li>
+              <li key={folder.id()}>
                 <Button
                   className={classList('Button PigeonholeMoveModal-choice', { active: current === folder.id() })}
                   aria-pressed={current === folder.id() ? 'true' : 'false'}
