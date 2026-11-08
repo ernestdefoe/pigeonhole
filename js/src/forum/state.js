@@ -22,6 +22,22 @@ export function dropFrom(list, dialog) {
   });
 }
 
+let archivedAlert = null;
+let archivedAlertTimer = null;
+
+/**
+ * One "archived" notice at a time: archiving several conversations in a row
+ * replaces it instead of stacking a new one each time, and it goes away by
+ * itself after a few seconds, wherever the member has gone since.
+ */
+function showArchivedAlert() {
+  app.alerts.dismiss(archivedAlert);
+  clearTimeout(archivedAlertTimer);
+
+  archivedAlert = app.alerts.show({ type: 'success' }, t('dialog.archived_alert'));
+  archivedAlertTimer = setTimeout(() => app.alerts.dismiss(archivedAlert), 5000);
+}
+
 /**
  * The member's folders and which one the Messages page shows. Lives outside
  * the page, so opening a conversation (a route change that rebuilds the page)
@@ -138,7 +154,7 @@ const folders = {
           user.pushAttributes({ unreadDialogCount: Math.max(0, (user.attribute('unreadDialogCount') || 0) - 1) });
         }
 
-        app.alerts.show({ type: 'success' }, t('dialog.archived_alert'));
+        showArchivedAlert();
       }
 
       this.afterChange(dialog);
